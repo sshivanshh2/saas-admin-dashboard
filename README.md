@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🚀 SaaS Admin Dashboard
 
-## Getting Started
+A full-stack admin dashboard built with Next.js, featuring role-based authentication, data visualization, and server-side pagination.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)
 
+## ✨ Features
+
+- 🔐 **Authentication & Authorization** - Secure login with role-based access control (Admin/User)
+- 📊 **Data Visualization** - Interactive charts and KPI dashboards
+- 📋 **Data Management** - Server-side paginated tables with filtering and sorting
+- 📥 **CSV Export** - Download data in CSV format
+- ⚡ **Performance Optimized** - Server-side rendering and efficient data caching
+- 🎨 **Modern UI** - Responsive design with Tailwind CSS
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- Next.js 15 (App Router)
+- React 19
+- Tailwind CSS
+- TanStack Query (React Query)
+- Recharts
+
+**Backend:**
+- Next.js API Routes
+- Prisma ORM
+- PostgreSQL (Supabase)
+
+**Authentication:**
+- NextAuth.js
+
+**Deployment:**
+- Vercel
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- PostgreSQL database
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/YOUR_USERNAME/saas-admin-dashboard.git
+cd saas-admin-dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Set up environment variables
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env.local` with your configuration:
+```env
+DATABASE_URL="your-database-url"
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+```
 
-## Learn More
+4. Run database migrations
+```bash
+npx prisma migrate dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Seed the database (optional)
+```bash
+npm run seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Start the development server
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Deploy on Vercel
+## 📁 Project Structure
+```
+saas-admin-dashboard/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── dashboard/         # Dashboard pages
+│   ├── login/             # Auth pages
+│   └── components/        # React components
+├── lib/                   # Utility functions
+├── prisma/                # Database schema
+└── public/                # Static assets
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is optimized for deployment on Vercel:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/saas-admin-dashboard)
+
+## 🧪 Testing
+```bash
+npm run test
+```
+
+## 📝 License
+
+MIT License - feel free to use this project for learning or portfolio purposes.
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+**Built with ❤️ for learning and portfolio purposes**
