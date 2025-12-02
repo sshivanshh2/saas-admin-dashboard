@@ -62,10 +62,15 @@ const LoginPage = () => {
                         <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700">Forgot password?</a>
                     </div>
 
-                    {/* Submit button */}
-                    
-
+                    {/* Submit button*/ }
+                    <button 
+                        type="submit" 
+                        className='w-full text-white font-bold bg-indigo-500 rounded-lg px-5 py-2 mt-5 hover:bg-indigo-700 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed' 
+                        disabled={isLoading}>
+                        {!isLoading?'Submit':'Signing in...'}
+                    </button>
                 </form>
+                <p className='text-sm text-center text-gray-600 mt-6'>Don't have an account?<a href="/signup" className='text-indigo-500 font-semibold hover:text-indigo-800'> Sign up</a></p>
             </div>
         </div>
     
