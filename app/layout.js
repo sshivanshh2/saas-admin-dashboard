@@ -1,5 +1,6 @@
 import './globals.css'
 import Header from './components/Header'
+import Sidebar from './components/Sidebar'
 
 export const metadata = {
   title: 'SaaS Admin Dashboard',
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="antialiased">
         <Header/>
+        <Sidebar/>
         {children}
       </body>
     </html>
