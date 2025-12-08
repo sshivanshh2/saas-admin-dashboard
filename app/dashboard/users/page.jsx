@@ -74,21 +74,37 @@ export default function UsersPage() {
                 <tbody>
                     {users.map((user)=>(
                         <tr key={user.id} className="hover:bg-gray-50">
-                            <td>{user.name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className='flex items-center'>
+                                    <div className='flex-shrink-0 h-10 w-10 bg-orange-400 flex items-center justify-center rounded-full'>
+                                        <span className='text-sm text-gray-900'>{user.name.split(' ').map((item)=>item[0]).join('')}</span>
+                                    </div>
+                                    <div className='ml-2'>
+                                        <span className='text-sm text-gray-900'>{user.name}</span>
+                                    </div>
+                                </div>
+                            </td>
                             <td className="text-sm text-gray-900">{user.email}</td>
                             <td className='px-6 py-4 whitespace-nowrap'>
-                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-ful ${user.role==='admin'?'bg-purple-100 text-purple-800': 'bg-gray-100 text-gray-800'}`}>{user.role}</span> 
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role==='admin'?'bg-purple-100 text-purple-800': 'bg-gray-100 text-gray-800'}`}>{user.role}</span> 
                             </td>
-                            <td>{user.status}</td>
-                            <td>{user.lastLogin}</td>
-                            <td>
-                                <button>Edit</button>
-                                <button>Delete</button>
+                            <td className='px-6 py-4 whitespace-nowrap'>
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status==='active' ? 'bg-green-100 text-green-800': 'bg-red-100 text-red-800'}`}>{user.status}</span>
+                            </td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
+                            {/* px-6  whitespace-nowrap text-right text-sm font-medium" */}
+                            <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
+                                <button className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
+                                <button className='text-red-600 hover:text-red-900 hover: cursor-pointer bg-purple-300 rounded-lg px-2 py-1'>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+        </div>
+    
+        <div className="mt-4 text-center text-sm text-gray-600 font-semibold">
+            Showing {users.length} users 👥
         </div>
     </div>
   )

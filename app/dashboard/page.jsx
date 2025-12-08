@@ -1,4 +1,24 @@
+'use client'
+import {useState, useEffect} from 'react'
+
 export default function DashboardPage(){
+    const [userCount, setUserCount] = useState(0)
+
+    useEffect(()=>{
+        async function fetchUserCount(){
+            try{
+                const response = await fetch('api/users/')
+                const data = await response.json()
+                if (data.success)
+                    setUserCount(data.count)
+            }
+            catch(error){
+                console.error('Failed to fetch user count: ', error)
+            }
+        }
+        fetchUserCount()
+    },[])
+
     return (
         // KPI Content 
         <main className="p-8">
@@ -13,7 +33,7 @@ export default function DashboardPage(){
                         <h3 className="text-sm font-medium text-gray-600">Total Users</h3>
                         <span className="text-2xl">👥</span>
                     </div>
-                    <p className="text-3xl font-bold text-gray-900">2,543</p>
+                    <p className="text-3xl font-bold text-gray-900">{userCount}</p>
                     <p className="text-sm text-green-600 mt-2">↑ 12% from last month</p>
                 </div>
 
