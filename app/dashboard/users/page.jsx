@@ -92,7 +92,6 @@ export default function UsersPage() {
                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status==='active' ? 'bg-green-100 text-green-800': 'bg-red-100 text-red-800'}`}>{user.status}</span>
                             </td>
                             <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
-                            {/* px-6  whitespace-nowrap text-right text-sm font-medium" */}
                             <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
                                 <button className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
                                 <button className='text-red-600 hover:text-red-900 hover: cursor-pointer bg-purple-300 rounded-lg px-2 py-1'>Delete</button>

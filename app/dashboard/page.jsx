@@ -7,7 +7,7 @@ export default function DashboardPage(){
     useEffect(()=>{
         async function fetchUserCount(){
             try{
-                const response = await fetch('api/users/')
+                const response = await fetch('api/users')
                 const data = await response.json()
                 if (data.success)
                     setUserCount(data.count)
