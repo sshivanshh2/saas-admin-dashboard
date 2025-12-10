@@ -1,20 +1,45 @@
 'use client'
 import {useState, useEffect} from 'react'
+import SearchInput from '@/app/components/SearchInput'
 
 export default function UsersPage() {
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    // run once on mount
+    const [searchTerm, setSearchTerm] = useState('')
+    const [userRole, setUserRole] = useState('')
+    const [userStatus, setUserStatus] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pagination, setPagination] = useState(null)
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, userRole, userStatus])
+
+    // run when any of the query params change
     useEffect(()=>{
         async function fetchUsers(){
+            setLoading(true)
+            setError(null)
+            
+            const params = new URLSearchParams()
+
+            if(searchTerm) params.append('search', searchTerm)
+            if(userRole) params.append('role', userRole)
+            if(userStatus) params.append('status', userStatus)
+            params.append('page', currentPage.toString())
+            params.append('limit', '5')
+
             try{
-                const response = await fetch('/api/users')
+                const response = await fetch(`/api/users?${params}`)
                 const data = await response.json()
 
-                if(data.success)
+                if(data.success){
                     setUsers(data.data)
+                    setPagination(data.pagination)
+                }
                 else
                     setError("Failed to load users")
             }
@@ -26,8 +51,8 @@ export default function UsersPage() {
             }
         }
         fetchUsers()
-    },[])
-
+    },[searchTerm, userRole, userStatus, currentPage])
+ 
     // showing a nice spinner while the data is being fetched
     if(loading){
         return(
@@ -56,8 +81,46 @@ export default function UsersPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-6"> User Management </h1>
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hover:cursor-pointer transition-colors">Add User</button>
         </div>
-    
+        <div className="bg-white rounded-lg border border-orange-400 shadow-lg p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 gap-6">
 
+            {/* Search Filter */}
+            <div className="md:col-span-2">
+                <SearchInput 
+                    value={searchTerm} 
+                    onChange={setSearchTerm}
+                    />
+            </div>
+
+            {/* Role Filter */}
+            <div className='text-gray-500'>
+                <select 
+                    name="role" 
+                    value={userRole} 
+                    onChange={(e)=>{setUserRole(e.target.value)}}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    >
+                    <option value="">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+
+            {/* Status Filter */}
+            <div className='text-gray-500'>
+                <select 
+                    name="status" 
+                    value={userStatus} 
+                    onChange={(e)=>{setUserStatus(e.target.value)}}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    >
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
      {/* Here goes the table */}
         <div>
             <table>
