@@ -17,7 +17,7 @@ export async function GET(request){
         // Search by name or email (case-insensitive)
         if(searchUrlParams){
             users = users.filter((user)=>{
-                user.name.toLowerCase().includes(searchUrlParams.toLowerCase()) || user.email.toLowerCase().includes(searchUrlParams.toLowerCase())
+               return (user.name.toLowerCase().includes(searchUrlParams.toLowerCase()) || user.email.toLowerCase().includes(searchUrlParams.toLowerCase()))
             })
         }
         
@@ -29,9 +29,23 @@ export async function GET(request){
         if(statusUrlParams)
             users = users.filter((user)=>user.status === statusUrlParams)
 
+        //pagination
+        const totalUsers = users.length
+        const totalPages = Math.ceil(totalUsers/limitUrlParams)
+        const startIndex = (pageUrlParams-1)*limitUrlParams
+        const endIndex = startIndex*limitUrlParams
+        const paginatedUsers = users.slice(startIndex, endIndex)
+
         return NextResponse.json({
             success: true,
-            data: users,
+            data: paginatedUsers,
+            pagination: {
+            pageUrlParams,
+            limitUrlParams, 
+            total: totalUsers, totalPages,
+            hasNext: pageUrlParams < totalPages,
+            hasPrev: pageUrlParams > 1   
+            },
             count: users.length
         })
     }
