@@ -33,7 +33,7 @@ export async function GET(request){
         const totalUsers = users.length
         const totalPages = Math.ceil(totalUsers/limitUrlParams)
         const startIndex = (pageUrlParams-1)*limitUrlParams
-        const endIndex = startIndex*limitUrlParams
+        const endIndex = startIndex + limitUrlParams
         const paginatedUsers = users.slice(startIndex, endIndex)
 
         return NextResponse.json({
