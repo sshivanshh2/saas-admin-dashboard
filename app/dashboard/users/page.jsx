@@ -30,7 +30,7 @@ export default function UsersPage() {
             if(userRole) params.append('role', userRole)
             if(userStatus) params.append('status', userStatus)
             params.append('page', currentPage.toString())
-            params.append('limit', '5')
+            params.append('limit', '4')
 
             try{
                 const response = await fetch(`/api/users?${params}`)
@@ -54,7 +54,7 @@ export default function UsersPage() {
     },[searchTerm, userRole, userStatus, currentPage])
  
     // showing a nice spinner while the data is being fetched
-    if(loading){
+    if(loading && users.length === 0){
         return(
             <div className='p-8 flex items-center justify-center min-h-screen'>
                 <div className='text-center'>
@@ -157,12 +157,31 @@ export default function UsersPage() {
                             <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
                             <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
                                 <button className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
-                                <button className='text-red-600 hover:text-red-900 hover: cursor-pointer bg-purple-300 rounded-lg px-2 py-1'>Delete</button>
+                                <button className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+        <div className='flex items-center justify-center gap-5'>
+            <button
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                disabled={!pagination.hasPrev}
+                className='text-gray-500 hover:cursor-pointer'>
+                Previous
+            </button>
+                
+            <button
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={!pagination.hasNext}
+                className="text-gray-500 hover:cursor-pointer"
+                >
+                Next
+            </button>
+
+        </div>
+
         </div>
     
         <div className="mt-4 text-center text-sm text-gray-600 font-semibold">
