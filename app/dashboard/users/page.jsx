@@ -39,6 +39,7 @@ export default function UsersPage() {
                 if(data.success){
                     setUsers(data.data)
                     setPagination(data.pagination)
+                    console.log([Array(data.pagination.totalPages)])
                 }
                 else
                     setError("Failed to load users")
@@ -163,24 +164,41 @@ export default function UsersPage() {
                     ))}
                 </tbody>
             </table>
+        {pagination && (
 
-        <div className='flex items-center justify-center gap-5'>
-            <button
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                disabled={!pagination.hasPrev}
-                className='text-gray-500 hover:cursor-pointer'>
-                Previous
-            </button>
-                
-            <button
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                disabled={!pagination.hasNext}
-                className="text-gray-500 hover:cursor-pointer"
-                >
-                Next
-            </button>
+            <div className='flex items-center justify-center gap-5'>
+                <button
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    disabled={!pagination.hasPrev}
+                    className='text-gray-500 hover:cursor-pointer'>
+                    Previous
+                </button>
 
-        </div>
+                {
+                    [...Array(pagination.totalPages)].map((_, index)=>(
+                        <button
+                            key={index+1}
+                            onClick={()=>setCurrentPage(index+1)}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                                ${currentPage === index + 1 ? 
+                                    'z-10 bg-indigo-50 border-indigo-500 text-indigo-600':
+                                    'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+                            >
+                            {index+1}
+                        </button>
+                    ))
+                }
+
+                <button
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    disabled={!pagination.hasNext}
+                    className="text-gray-500 hover:cursor-pointer"
+                    >
+                    Next
+                </button>
+
+            </div>
+        )}
 
         </div>
     
