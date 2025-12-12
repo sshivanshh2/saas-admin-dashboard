@@ -92,6 +92,81 @@ export default function AnalyticsPage() {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* User Growth Chart */}
+      <div className="bg-white rounded-lg shadow p-8 text-center">
+        <h2 className='text-gray-500 text-lg'>User Growth Over Time</h2>
+        <ResponsiveContainer width="100%" height={300} style={{ border: "2px solid #000" }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <AreaChart data={analytics.userGrowth}>
+          <XAxis dataKey="month"/>
+          <YAxis/>
+          <Tooltip/>
+          <Legend/>
+          <Area type="monotone" dataKey="users" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} name="Total Users"/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Pie Charts for User by Role and Traffic Sources */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+            <h2 className='text-gray-500 text-lg'>Users by Role</h2>
+            <ResponsiveContainer width="100%" height={300} style={{ border: "2px solid #000" }}>
+              <PieChart>
+                <Pie
+                  data={analytics.userByRole}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  outerRadius={100}
+                >
+                  {analytics.userByRole.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+            <h2 className='text-gray-500 text-lg'>Traffic Sources</h2>
+            <ResponsiveContainer width="100%" height={300} style={{ border: "2px solid #000" }}>
+              <PieChart>
+                <Pie 
+                  data={analytics.trafficSources}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  outerRadius={100}
+                  >
+                  {analytics.trafficSources.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+                <Tooltip/>
+              </PieChart>
+            </ResponsiveContainer>
+        </div>          
+      </div>
+      
+      {/* Chart for Daily active users  */}
+      <div className='bg-white text-center rounded-lg p-8 shadow-lg'>
+            <h2 className='text-gray-500 text-lg'>Daily Active Users</h2>
+            <ResponsiveContainer width="100%" height={300} style={{ border: "2px solid #000" }}>
+            <LineChart data={analytics.dailyActiveUsers}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip formatter={(value) => `$${value.toLocaleString()}`} 
+              contentStyle={{ backgroundColor: '#fff'}}/>
+            <Legend/>
+            <Line type='monotone' dataKey="users" stroke="#df5b1dff" strokeWidth={2} dot={{ fill: '#dd5b1fff' }} name="Active Users"/>
+            </LineChart>
+            </ResponsiveContainer>
+      </div>
+
     </div>
   )
 }
