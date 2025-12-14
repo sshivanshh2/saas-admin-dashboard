@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server'
-import {mockUsers} from '@/lib/data/mockUsers'
+import { prisma } from '@/lib/db/prisma'
 
 // GET /api/users?search=aiden&role=admin&status=active&page=1&limit=5
 export async function GET(request){
@@ -12,29 +12,36 @@ export async function GET(request){
         const pageUrlParams = parseInt(searchParams.get('page') || '1')
         const limitUrlParams = parseInt(searchParams.get('limit') || '10')
 
-        let users = mockUsers
-
-        // Search by name or email (case-insensitive)
-        if(searchUrlParams){
-            users = users.filter((user)=>{
-               return (user.name.toLowerCase().includes(searchUrlParams.toLowerCase()) || user.email.toLowerCase().includes(searchUrlParams.toLowerCase()))
-            })
-        }
+        // Build Prisma where clause
+        const where = {}
         
+        // Search filter
+        if (searchUrlParams){
+            where.OR = [
+                {name: { contains: searchUrlParams, mode: 'insensitive'}},
+                {email: {contains: searchUrlParams, mode: 'insensitive'}}
+            ]
+        }
+
         // filter by role
         if(roleUrlParams)
-            users = users.filter((user)=>user.role === roleUrlParams)
+            where.role = roleUrlParams
         
         // filter by status
         if(statusUrlParams)
-            users = users.filter((user)=>user.status === statusUrlParams)
+           where.status = statusUrlParams
 
         //pagination
-        const totalUsers = users.length
+        const totalUsers = await prisma.user.count({where}) // total count for pagination
+        const paginatedUsers = await prisma.user.findMany({
+            where,
+            skip: (pageUrlParams - 1)*limitUrlParams,
+            take: limitUrlParams,
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
         const totalPages = Math.ceil(totalUsers/limitUrlParams)
-        const startIndex = (pageUrlParams-1)*limitUrlParams
-        const endIndex = startIndex + limitUrlParams
-        const paginatedUsers = users.slice(startIndex, endIndex)
 
         return NextResponse.json({
             success: true,
@@ -46,7 +53,7 @@ export async function GET(request){
             hasNext: pageUrlParams < totalPages,
             hasPrev: pageUrlParams > 1   
             },
-            count: users.length
+            count: totalUsers.length
         })
     }
     catch (error){
