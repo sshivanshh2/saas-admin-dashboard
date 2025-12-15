@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@lib/data/*": ["lib/data/*"]  // More specific if needed
     }
   }
 }
