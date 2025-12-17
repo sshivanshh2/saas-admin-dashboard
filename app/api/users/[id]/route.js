@@ -2,13 +2,14 @@ import {NextResponse} from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
 // PUT /api/users/[id] - Update user
-export async function PUT(request, {params}){
+export async function PUT(request, context){
     try{
+        const params = await context.params 
         const id = parseInt(params.id)
         const userData = await request.json()
         const {name, email, role, status} = userData
 
-        if (!name || !email) {
+        if (!name || !email){
         return NextResponse.json(
             { success: false, error: 'Name and email are required' },
             { status: 400 }
