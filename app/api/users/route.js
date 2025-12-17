@@ -63,3 +63,83 @@ export async function GET(request){
         )
     }
 }
+
+export async function POST(request){
+    try{
+        const userData = await request.json()
+        const {name, email, role, status} = userData
+
+        if(!name || !email){
+            return NextResponse.json(
+                {success: false, error: "Name and email are required"},
+                {status: 400}
+            )
+        }
+
+        // check for existing user if email already exists (unique)
+        const existingUser = await prisma.user.findUnique({
+            where: {email}
+        })
+        
+        if(existingUser){
+             return NextResponse.json(
+                {success: false, error: "Email already exists"},
+                {status: 400}
+            )
+        }
+
+        const user = await prisma.user.create({
+            data: {
+                name, 
+                email,
+                role: role || 'user',
+                status: status || 'active',
+                lastLogin: new Date()
+            }
+        })
+
+        return NextResponse.json({
+            success: true,
+            data: user,
+            message: "User created successfully!"
+        }, {status: 201})
+    }
+    catch(error){
+        console.error("Create user error", error)
+        return NextResponse.json({
+            success: false,
+            error: "Failed to create user"},
+            {status: 500})
+    }
+} 
+
+export async function DELETE(request){
+    try{
+        const {searchParams} = new URL(request.url)
+        const id = searchParams.get('id')
+
+        if(!id){
+            return NextResponse.json(
+        { success: false, error: 'User ID is required' },
+        { status: 400 }
+        )
+        }
+
+        await prisma.user.delete({
+            where: {id: parseInt(id)}
+        })
+
+        return NextResponse.json({
+            success: true, 
+            message: "User deleted successfully!"
+        }, 
+        {status: 201})
+    }
+    catch(error){
+        console.log("Delete user error: ", error)
+        return NextResponse.json(
+            {success: false, error: "Failed to delete user"},
+            {status: 500}
+    )
+    }
+}
