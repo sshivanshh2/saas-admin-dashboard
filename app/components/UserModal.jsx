@@ -1,17 +1,94 @@
 'use client'
 
-export default function UserModal(){
+import { useState, useEffect } from "react";
+
+export default function UserModal({
+    isOpen,     // Show/Hide
+    onClose,    // Close modal
+    onSuccess,  // Refresh data after save
+    user = null // The user to edit
+}){
+    //If the modal is closed, don't render anything
+    if (!isOpen) return null; 
+
+    const [formData, setFormData] = useState({name: '', email: '', role: 'user', status: 'active'})
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+
+    useEffect(()=>{
+        if(user){
+            // edit mode
+            setFormData({
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                status: user.status
+      })
+        } 
+        else{
+            setFormData(initialFormState) //create mode
+        }
+        setError('')
+    }, [user, isOpen])
+
+
+    const handleChange = (e) =>{
+        const {name, value} = e.target
+        setFormData(prev => ({...prev, [name]: value}))
+    }
+
+    const handleSubmit = async (e) =>{
+        e.preventDefault()
+        setLoading(true)
+        setError('')
+
+        try{
+            const url = user ? `/api/users/${user.id}` : '/api/users'
+            const method = user ? 'PUT': 'POST'
+
+            const response = await fetch(url, {
+                method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            })
+
+            const data = await response.json()
+
+            if(!data.success)
+                throw new Error(data.error || 'Something went wrong')
+
+            onSuccess(data.message) // tell the parent to refresh
+            onClose()
+        }
+        catch(error){
+            setError(error.message)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b">
-                    <h2 className="text-xl font-bold text-gray-900">Create New User</h2>
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">X</button>
+                <div className="flex items-center justify-between p-6">
+                    <h2 className="text-xl font-bold text-gray-900">{user ? 'Edit User' : 'Create New User'}</h2>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-600 hover:cursor-pointer transition-colors"><span className="font-bold text-lg border border-gray-700 rounded-full p-1">X</span></button>
                 </div>
 
                 {/* Form */}
-                <form className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+
+                    {/* Error */}
+                    {error && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded text-sm border border-red-200">
+                        {error}
+                        </div>
+                    )}
+
                     {/* Name field */}
                      <div>
                          <label htmlFor='name' className='block text-sm font-bold text-gray-700 mb-1'>Name:</label>
@@ -19,9 +96,11 @@ export default function UserModal(){
                             type="text"
                             name="name"
                             id="name"
+                            value = {formData.name}
+                            onChange={handleChange}
                             required
                             placeholder='Drax Johnson'
-                            className='w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm text-base text-gray-700 placeholder-gray-400
+                            className='w-full px-3 py-2 border border-gray-500 rounded-lg shadow-sm text-base text-gray-700 placeholder-gray-400
                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'/>
                     </div>
 
@@ -32,9 +111,11 @@ export default function UserModal(){
                             type="email"
                             name="email"
                             id="email"
+                            value = {formData.email}
+                            onChange={handleChange}
                             required
                             placeholder='you@example.com'
-                            className='w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm text-base text-gray-700 placeholder-gray-400
+                            className='w-full px-3 py-2 border border-gray-500 rounded-lg shadow-sm text-base text-gray-700 placeholder-gray-400
                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'/>
                     </div>
 
@@ -46,7 +127,9 @@ export default function UserModal(){
                         <select
                             id="role"
                             name="role"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                            value = {formData.role}
+                            onChange={handleChange}
+                            className="w-full text-gray-700 px-4 py-2 border border-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                             >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
@@ -61,7 +144,9 @@ export default function UserModal(){
                         <select
                             id="status"
                             name="status"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                            value = {formData.status}
+                            onChange={handleChange}
+                            className="w-full text-gray-700 px-4 py-2 border border-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                             >
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -72,16 +157,18 @@ export default function UserModal(){
                     <div className="flex gap-3 pt-4">
                         <button
                             type="button"
-                            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={onClose}
+                            className="flex-1 px-4 py-2 border bg-gray-600 text-white border-gray-600 text-gray-700 rounded-lg hover:bg-gray-700 hover:cursor-pointer transition-colors"
                         >
                             Cancel
                         </button>
 
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loading}
+                            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hover:cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Create User
+                            {loading ? 'Saving...': 'Save User'}
                         </button>
                     </div>
                 </form>
