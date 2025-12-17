@@ -2,6 +2,7 @@
 import {useState, useEffect} from 'react'
 import SearchInput from '@/app/components/SearchInput'
 import { exportToCSV } from '@/lib/utils/csvExport'
+import UserModal from '@/app/components/UserModal'
 
 export default function UsersPage() {
     const [users, setUsers] = useState([])
@@ -181,6 +182,10 @@ export default function UsersPage() {
                     ))}
                 </tbody>
             </table>
+        
+        <div>
+            <UserModal/>
+        </div>
         {pagination && (
 
             <div className='flex items-center justify-center gap-5'>
