@@ -8,10 +8,11 @@ export default function UserModal({
     onSuccess,  // Refresh data after save
     user = null // The user to edit
 }){
+    const initialFormState = {name: '', email: '', role: 'user', status: 'active'}
     //If the modal is closed, don't render anything
     if (!isOpen) return null; 
 
-    const [formData, setFormData] = useState({name: '', email: '', role: 'user', status: 'active'})
+    const [formData, setFormData] = useState(initialFormState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 

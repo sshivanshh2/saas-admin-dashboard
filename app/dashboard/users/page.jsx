@@ -3,6 +3,7 @@ import {useState, useEffect} from 'react'
 import SearchInput from '@/app/components/SearchInput'
 import { exportToCSV } from '@/lib/utils/csvExport'
 import UserModal from '@/app/components/UserModal'
+import DeleteConfirmModal from '@/app/components/DeleteConfirmModal'
 
 export default function UsersPage() {
     const [users, setUsers] = useState([])
@@ -15,26 +16,28 @@ export default function UsersPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [pagination, setPagination] = useState(null)
 
+    // State for modals
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [selectedUser, setSelectedUser] = useState(null)
+    const [successMessage, setSuccessMessage] = useState('')
+
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1)
     }, [searchTerm, userRole, userStatus])
 
-    // run when any of the query params change
-    useEffect(()=>{
-        async function fetchUsers(){
+    const fetchUsers = async () =>{
             setLoading(true)
             setError(null)
-            
-            const params = new URLSearchParams()
-
-            if(searchTerm) params.append('search', searchTerm)
-            if(userRole) params.append('role', userRole)
-            if(userStatus) params.append('status', userStatus)
-            params.append('page', currentPage.toString())
-            params.append('limit', '4')
-
             try{
+                const params = new URLSearchParams()
+    
+                if(searchTerm) params.append('search', searchTerm)
+                if(userRole) params.append('role', userRole)
+                if(userStatus) params.append('status', userStatus)
+                params.append('page', currentPage.toString())
+                params.append('limit', '4')
                 const response = await fetch(`/api/users?${params}`)
                 const data = await response.json()
 
@@ -53,8 +56,20 @@ export default function UsersPage() {
                 setLoading(false)
             }
         }
+    // run when any of the query params change
+    useEffect(()=>{
         fetchUsers()
     },[searchTerm, userRole, userStatus, currentPage])
+
+     // Handle success message
+    useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [successMessage])
 
     const handleExport = () => {
         // Generate filename with timestamp
@@ -64,6 +79,57 @@ export default function UsersPage() {
         // Export
         exportToCSV(users, filename)
     }
+
+    const handleCreateUser = () => {
+        setSelectedUser(null)
+        setIsUserModalOpen(true)
+    }
+
+     const handleEditUser = (user) => {
+        setSelectedUser(user)
+        setIsUserModalOpen(true)
+    }
+     
+    const handleUserModalClose = () => {
+        setIsUserModalOpen(false)
+        setSelectedUser(null)
+    }
+    const handleUserSuccess = (message) => {
+        setSuccessMessage(message)
+        fetchUsers() // Refresh the list
+    }
+
+    const handleDeleteClick = (user) => {
+        setSelectedUser(user)
+        setIsDeleteModalOpen(true)
+    }
+
+    const handleDeleteModalClose = () => {
+        setIsDeleteModalOpen(false)
+        setSelectedUser(null)
+    }
+
+    const handleDeleteConfirm = async () => {
+        try {
+        const response = await fetch(`/api/users?id=${selectedUser.id}`, {
+            method: 'DELETE'
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+            setSuccessMessage(data.message)
+            setIsDeleteModalOpen(false)
+            setSelectedUser(null)
+            fetchUsers()
+        } else {
+            alert('Failed to delete user')
+        }
+        } catch (err) {
+        alert('Error deleting user')
+        }
+    }
+
 
     // showing a nice spinner while the data is being fetched
     if(loading && users.length === 0){
@@ -97,7 +163,9 @@ export default function UsersPage() {
                 disabled={users.length === 0}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer transition-colors">
                     Export CSV</button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 hover:cursor-pointer transition-colors">Add User</button>
+            <button 
+                onClick={handleCreateUser}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 hover:cursor-pointer transition-colors">Add User</button>
             </div>
         </div>
         <div className="bg-white rounded-lg border border-orange-400 shadow-lg p-6 mb-6">
@@ -175,8 +243,12 @@ export default function UsersPage() {
                             </td>
                             <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
                             <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
-                                <button className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
-                                <button className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
+                                <button 
+                                    onClick={() => handleEditUser(user)}
+                                    className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
+                                <button 
+                                    onClick={()=>handleDeleteClick(user)}
+                                    className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -184,7 +256,18 @@ export default function UsersPage() {
             </table>
         
         <div>
-            <UserModal/>
+            <UserModal
+                isOpen={isUserModalOpen}
+                onClose={handleUserModalClose}
+                onSuccess={handleUserSuccess}
+                user={selectedUser}
+            />
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={handleDeleteModalClose}
+                onConfirm={handleDeleteConfirm}
+                userName={selectedUser?.name}
+            />
         </div>
         {pagination && (
 
