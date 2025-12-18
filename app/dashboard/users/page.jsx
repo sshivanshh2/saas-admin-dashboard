@@ -66,7 +66,7 @@ export default function UsersPage() {
     if (successMessage) {
       const timer = setTimeout(() => {
         setSuccessMessage('')
-      }, 3000)
+      }, 4000)
       return () => clearTimeout(timer)
     }
   }, [successMessage])
@@ -155,6 +155,15 @@ export default function UsersPage() {
 
   return (
     <div className="p-8">
+         {/* Success Message */}
+        {successMessage && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
+          <span>{successMessage}</span>
+          <button onClick={() => setSuccessMessage('')} className="text-green-700 hover:text-green-900 hover:cursor-pointer">
+            ×
+          </button>
+        </div>
+        )}
         <div className='flex items-center justify-between mb-6'>
             <h1 className="text-3xl font-bold text-gray-900 mb-6"> User Management </h1>
             <div className='flex gap-3'>
