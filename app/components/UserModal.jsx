@@ -9,8 +9,6 @@ export default function UserModal({
     user = null // The user to edit
 }){
     const initialFormState = {name: '', email: '', role: 'user', status: 'active'}
-    //If the modal is closed, don't render anything
-    if (!isOpen) return null; 
 
     const [formData, setFormData] = useState(initialFormState)
     const [loading, setLoading] = useState(false)
@@ -20,10 +18,10 @@ export default function UserModal({
         if(user){
             // edit mode
             setFormData({
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                status: user.status
+                name: user.name || '',
+                email: user.email || '',
+                role: user.role || 'user',
+                status: user.status || 'active'
       })
         } 
         else{
@@ -68,6 +66,9 @@ export default function UserModal({
             setLoading(false)
         }
     }
+
+    //If the modal is closed, don't render anything
+    if (!isOpen) return null; 
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
