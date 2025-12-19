@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server'
 import { prisma } from '@/lib/db/prisma'
+import bcrypt from 'bcryptjs'
 
 // GET /api/users?search=aiden&role=admin&status=active&page=1&limit=5
 export async function GET(request){
@@ -39,7 +40,17 @@ export async function GET(request){
             take: limitUrlParams,
             orderBy: {
                 createdAt: 'desc'
-            }
+            },
+             select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        lastLogin: true,
+        // password: false  ← Don't include password!
+    }
         })
         const totalPages = Math.ceil(totalUsers/limitUrlParams)
 
@@ -53,7 +64,7 @@ export async function GET(request){
             hasNext: pageUrlParams < totalPages,
             hasPrev: pageUrlParams > 1   
             },
-            count: totalUsers.length
+            count: totalUsers
         })
     }
     catch (error){
@@ -67,11 +78,19 @@ export async function GET(request){
 export async function POST(request){
     try{
         const userData = await request.json()
-        const {name, email, role, status} = userData
+        const {name, email, password, role, status} = userData
 
-        if(!name || !email){
+        if(!name || !email || !password){
             return NextResponse.json(
-                {success: false, error: "Name and email are required"},
+                {success: false, error: "Name, emai, and password are required"},
+                {status: 400}
+            )
+        }
+
+        // Password length validation
+        if(password.length < 6){
+            return NextResponse.json(
+                {success: false, error: "Password must be at least 6 characters"},
                 {status: 400}
             )
         }
@@ -80,27 +99,35 @@ export async function POST(request){
         const existingUser = await prisma.user.findUnique({
             where: {email}
         })
+
         
         if(existingUser){
-             return NextResponse.json(
+            return NextResponse.json(
                 {success: false, error: "Email already exists"},
                 {status: 400}
             )
         }
 
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10)
+        
         const user = await prisma.user.create({
             data: {
                 name, 
                 email,
+                password: hashedPassword,
                 role: role || 'user',
                 status: status || 'active',
                 lastLogin: new Date()
             }
         })
 
+         // Don't return password in response
+        const { password: _, ...userWithoutPassword } = user
+
         return NextResponse.json({
             success: true,
-            data: user,
+            data: userWithoutPassword,
             message: "User created successfully!"
         }, {status: 201})
     }

@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server'
 import { prisma } from '@/lib/db/prisma'
+import bcrypt from 'bcryptjs'
 
 // PUT /api/users/[id] - Update user
 export async function PUT(request, context){
@@ -7,7 +8,7 @@ export async function PUT(request, context){
         const params = await context.params 
         const id = parseInt(params.id)
         const userData = await request.json()
-        const {name, email, role, status} = userData
+        const {name, email, password, role, status} = userData
 
         if (!name || !email){
         return NextResponse.json(
@@ -29,22 +30,37 @@ export async function PUT(request, context){
             { status: 400 }
         )
         }
+         const updateData = {
+            name,
+            email,
+            role,
+            status
+        }
 
-        const user = await prisma.user.update({
+        // Only update password if provided
+        if (password && password.trim() !== '') {
+        if (password.length < 6) {
+            return NextResponse.json(
+            { success: false, error: 'Password must be at least 6 characters' },
+            { status: 400 }
+            )
+        }
+        updateData.password = await bcrypt.hash(password, 10)
+        }
+
+        const updatedUser = await prisma.user.update({
             where: {id},
-            data: {
-                name,
-                email,
-                role,
-                status
-            }
+            data: updateData
         })
 
-        return NextResponse.json({
-        success: true,
-        data: user,
-        message: 'User updated successfully'
-    })
+         // Don't return password
+        const { password: _, ...userWithoutPassword } = updatedUser
+
+            return NextResponse.json({
+            success: true,
+            data: userWithoutPassword,
+            message: 'User updated successfully'
+        })
     }
     catch(error){
         console.error('Update user error:', error)

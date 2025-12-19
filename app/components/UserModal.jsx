@@ -8,7 +8,7 @@ export default function UserModal({
     onSuccess,  // Refresh data after save
     user = null // The user to edit
 }){
-    const initialFormState = {name: '', email: '', role: 'user', status: 'active'}
+    const initialFormState = {name: '', email: '', password: '', role: 'user', status: 'active'}
 
     const [formData, setFormData] = useState(initialFormState)
     const [loading, setLoading] = useState(false)
@@ -20,6 +20,7 @@ export default function UserModal({
             setFormData({
                 name: user.name || '',
                 email: user.email || '',
+                password: '',
                 role: user.role || 'user',
                 status: user.status || 'active'
       })
@@ -120,6 +121,25 @@ export default function UserModal({
                             className='w-full px-3 py-2 border border-gray-500 rounded-lg shadow-sm text-base text-gray-700 placeholder-gray-400
                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'/>
                     </div>
+
+                    {/* Password field */}
+                    <div>
+                         <label htmlFor='password' className='block text-sm font-bold text-gray-700 mb-1'>Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            value = {formData.password}
+                            onChange={handleChange}
+                            required={!user} // Required only when creating new user
+                            placeholder={user ? "Leave blank to keep current" : "Enter password"}
+                            className='w-full px-3 py-2 border border-gray-500 rounded-lg shadow-sm text-base text-gray-700 placeholder-gray-400
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'/>
+                                {!user && (
+                                    <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                                )}
+                    </div>
+
 
                     {/* Role Field */}
                     <div>
