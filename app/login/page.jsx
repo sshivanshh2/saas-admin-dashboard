@@ -1,7 +1,10 @@
 'use client' //This component needs to run in the browser
 import {useState} from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 const LoginPage = () => {
+    const router = useRouter()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -11,11 +14,26 @@ const LoginPage = () => {
         e.preventDefault()
         setIsLoading(true)
         setError('')
-        const intervalId = setTimeout(()=>{
-            console.log({email, password});
-            alert(email)
+
+        try{
+            // sends a POST request to /api/auth/callback/credentials
+            const result = await signIn('credentials', {
+                email: email,
+                password: password,
+                redirect: false // makes sure that it doesn't redirect automatically
+            })
+
+            if(result?.error){
+                setError(result.error)
+                setIsLoading(false)
+            }else{
+                router.push('/dashboard') // success! redirect to dashboard
+                router.refresh() // refresh to update session
+            }
+        } catch(error){
+            setError("An error occured. Please try again")
             setIsLoading(false)
-        }, 1000)
+        }
     }
 
     return (
@@ -36,6 +54,7 @@ const LoginPage = () => {
                             value={email} 
                             onChange={(e)=>setEmail(e.target.value)} 
                             placeholder='you@example.com'
+                            disabled={isLoading}
                             className='w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm text-base text-gray-700 placeholder-gray-400
                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'/>
                     </div>
@@ -49,6 +68,7 @@ const LoginPage = () => {
                             value={password} 
                             onChange={(e)=>setPassword(e.target.value)}
                             placeholder='••••••••'
+                            disabled={isLoading}
                             className='w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm text-base text-gray-700 placeholder-gray-400
                             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
                             />
@@ -66,16 +86,20 @@ const LoginPage = () => {
                     <button 
                         type="submit" 
                         className='w-full text-white font-bold bg-indigo-500 rounded-lg px-5 py-2 mt-5 hover:bg-indigo-700 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed' 
-                        disabled={isLoading}>
+                        disabled={isLoading}
+                        >
                         {!isLoading?'Submit':'Signing in...'}
                     </button>
                 </form>
                 <p className='text-sm text-center text-gray-600 mt-6'>Don't have an account? <a href="/signup" className='text-indigo-500 font-semibold hover:text-indigo-800'> Sign up</a></p>
+                {/* Test Credentials Info */}
+                <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-800 font-semibold mb-1">Test Credentials:</p>
+                <p className="text-xs text-blue-700">Admin: admin@example.com / password123</p>
+                <p className="text-xs text-blue-700">User: user@example.com / password123</p>
+                </div>
             </div>
         </div>
-    
-
-
     )
 }
 
