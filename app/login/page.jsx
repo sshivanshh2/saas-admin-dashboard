@@ -1,14 +1,22 @@
 'use client' //This component needs to run in the browser
-import {useState} from 'react'
-import { signIn } from 'next-auth/react'
+import {useState, useEffect} from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 const LoginPage = () => {
     const router = useRouter()
+    const { data: session, status } = useSession()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
+
+    // Redirect if already logged in
+    useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard')
+    }
+    }, [status, router])
 
     const handleSubmit = async (e) =>{
         e.preventDefault()
@@ -27,7 +35,11 @@ const LoginPage = () => {
                 setError(result.error)
                 setIsLoading(false)
             }else{
-                router.push('/dashboard') // success! redirect to dashboard
+                // Success! Check if there's a redirect URL
+                const params = new URLSearchParams(window.location.search)
+                const callbackUrl = params.get('callbackUrl') || '/dashboard'
+  
+                router.push(callbackUrl) // success! redirect to dashboard
                 router.refresh() // refresh to update session
             }
         } catch(error){
@@ -35,7 +47,23 @@ const LoginPage = () => {
             setIsLoading(false)
         }
     }
+    // Show loading while checking session
+    if (status === 'loading') {
+        return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+            </div>
+        </div>
+        )
+    }
 
+    // If authenticated, don't show login form (will redirect via useEffect)
+    if (status === 'authenticated') {
+        return null
+    }
+    
     return (
         <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center'>
             {/* White Card */}
