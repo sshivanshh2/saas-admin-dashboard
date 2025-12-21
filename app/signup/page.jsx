@@ -1,6 +1,7 @@
 'use client'
+
 import {useState, useEffect} from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 
@@ -33,20 +34,56 @@ const SignupPage = () =>{
             setIsLoading(false)
             return
         }
-        if(formData.password.length < 8)
+        if(formData.password.length < 6)
         {
-            setError('Passwords must be at least 8 characters')
+            setError('Passwords must be at least 6 characters')
             setIsLoading(false)
             return
         }
 
-        setTimeout(()=>{
-            console.log(formData)
-            alert("Account created for: "+ formData.email)
-            setIsLoading(false)
-        }, 1000)
-    }
+        try{
+            // create user account via API
+            const response = await fetch('/api/users',{
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    role: 'user', // default signup
+                    status: 'active'
+                })
+            })
 
+            const data = await response.json()
+
+            if(data.success){
+                // Account created! Now log them in automatically
+            const signInResult = await signIn('credentials', {
+                email: formData.email,
+                password: formData.password,
+                redirect: false
+            })
+             if (signInResult?.error) {
+          setError('Account created but login failed. Please try logging in.')
+          setIsLoading(false)
+        } else {
+          // Success! Redirect to dashboard
+          router.push('/dashboard')
+          router.refresh()
+        }
+      
+            }
+            else{
+                setError(data.error || 'Failed to create account')
+        setIsLoading(false)
+            }
+        }
+        catch (err) {
+      setError('An error occurred. Please try again.')
+      setIsLoading(false)
+    }
+  }
     // Show loading while checking session
     if (status === 'loading') {
         return (
