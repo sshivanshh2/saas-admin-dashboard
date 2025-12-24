@@ -1,11 +1,13 @@
 'use client'
 import {useState, useEffect} from 'react'
+import { useSession } from 'next-auth/react'
 import SearchInput from '@/app/components/SearchInput'
 import { exportToCSV } from '@/lib/utils/csvExport'
 import UserModal from '@/app/components/UserModal'
 import DeleteConfirmModal from '@/app/components/DeleteConfirmModal'
 
 export default function UsersPage() {
+    const { data: session } = useSession()
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -172,9 +174,14 @@ export default function UsersPage() {
                 disabled={users.length === 0}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer transition-colors">
                     Export CSV</button>
+
+            {session?.user?.role === 'admin' && (
             <button 
                 onClick={handleCreateUser}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 hover:cursor-pointer transition-colors">Add User</button>
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 hover:cursor-pointer transition-colors">
+                    Add User
+            </button>)}
+
             </div>
         </div>
         <div className="bg-white rounded-lg border border-orange-400 shadow-lg p-6 mb-6">
@@ -244,6 +251,7 @@ export default function UsersPage() {
                                 </div>
                             </td>
                             <td className="text-sm text-gray-900">{user.email}</td>
+                           
                             <td className='px-6 py-4 whitespace-nowrap'>
                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role==='admin'?'bg-purple-100 text-purple-800': 'bg-gray-100 text-gray-800'}`}>{user.role}</span> 
                             </td>
@@ -252,12 +260,26 @@ export default function UsersPage() {
                             </td>
                             <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
                             <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
-                                <button 
-                                    onClick={() => handleEditUser(user)}
-                                    className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
-                                <button 
-                                    onClick={()=>handleDeleteClick(user)}
-                                    className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
+                                <>
+                                    <button 
+                                        onClick={() => handleEditUser(user)}
+                                        className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
+
+                                    {/* Can't delete yourself or other admins */}
+                                    { user.role!== 'admin' && user.id!== parseInt(session.user.id) && (
+                                    <button 
+                                        onClick={()=>handleDeleteClick(user)}
+                                        className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
+                                    )}
+                                    {user.id === parseInt(session.user.id) && (
+                                        <span className="text-gray-400 text-sm">(You)</span>
+                                    )}
+
+                                    {user.role === 'admin' && user.id !== parseInt(session.user.id) && (
+                                        <span className="text-gray-400 text-sm">(Admin)</span>
+                                    )}
+                                    
+                                </>
                             </td>
                         </tr>
                     ))}
