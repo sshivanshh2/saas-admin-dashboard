@@ -1,9 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation' //gives me current url path
+import { useSession, signOut } from 'next-auth/react'
 
 export default function Sidebar() {
     const pathname = usePathname()
+    const { data: session } = useSession()
 
     const navItems = [
         { href: '/dashboard', label: 'Overview', icon: '📊' },
@@ -41,16 +43,45 @@ export default function Sidebar() {
         </nav>
 
         {/* User Profile Section */}
-        <div className='bg-gray-800 rounded-lg p-4'>
-            <div className='flex items-center space-x-3'>
-                <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
-                    <p className='className="text-white font-semibold"'>JD</p>
-                </div>
+        <div className='mt-auto'>
+            {session ? (
                 <div>
-                    <p className='text-white font-medium text-sm'>Drax Johnson</p>
-                    <p className="text-gray-400 text-xs">Admin</p>    
+                    <div className='bg-gray-800 rounded-lg p-4'>
+                        <div className='flex items-center space-x-3'>
+                            <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                                <p className='text-white font-semibold'>
+                                    {session.user.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                                </p>
+                            </div>
+                            <div className='flex flex-col'>
+                                <p className='text-white font-medium text-sm'> {session.user.name}</p>
+                                {/* Role Badge */}
+                                <span className={`mt-1 px-2 py-1 text-xs font-semibold rounded ${
+                                    session.user.role === 'admin'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-700 text-gray-300'
+                                    }`}>
+                                    {session.user.role === 'admin' ? '👑 Admin' : '👤 User'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                   
+                   <div className='text-center'>
+                        {/* Logout Button */}
+                        <button
+                            onClick={() => signOut({ callbackUrl: '/login' })}
+                            className="w-30 text- mt-2 px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600 hover:cursor-pointer hover:text-white transition-colors"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
-            </div>
+            ): (
+                <div className="bg-gray-800 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm">Loading user...</p>
+                </div>
+            )}
         </div>
    </aside>
   )
