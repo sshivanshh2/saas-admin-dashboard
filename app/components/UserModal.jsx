@@ -151,11 +151,17 @@ export default function UserModal({
                             name="role"
                             value = {formData.role}
                             onChange={handleChange}
+                            disabled={user?.role === 'admin'}
                             className="w-full text-gray-700 px-4 py-2 border border-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                             >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                         </select>
+                        {user?.role === 'admin' && (
+                         <p className="text-xs text-amber-600 mt-1">
+                            ⚠️ Admin role cannot be changed
+                        </p>
+                            )}
                     </div>
 
                     {/* Status Field */}

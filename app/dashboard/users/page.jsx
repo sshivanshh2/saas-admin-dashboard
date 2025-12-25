@@ -261,17 +261,19 @@ export default function UsersPage() {
                             <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{user.lastLogin}</td>
                             <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-semibold'>
                                 <>
+                                    { session.user.role === 'admin' && user.role!== 'admin' && user.id!== parseInt(session.user.id) && (
                                     <button 
                                         onClick={() => handleEditUser(user)}
                                         className='text-indigo-600 hover:text-indigo-900 hover: cursor-pointer mr-3 bg-indigo-200 rounded-lg px-2 py-1 '>Edit</button>
-
+                                    )}
                                     {/* Can't delete yourself or other admins */}
-                                    { user.role!== 'admin' && user.id!== parseInt(session.user.id) && (
-                                    <button 
+                                    
+                                    { session.user.role === 'admin' && user.role!== 'admin' && user.id!== parseInt(session.user.id) && (
+                                        <button 
                                         onClick={()=>handleDeleteClick(user)}
                                         className='text-white hover:text-gray-200 hover: cursor-pointer bg-red-500 rounded-lg px-2 py-1'>Delete</button>
                                     )}
-                                    {user.id === parseInt(session.user.id) && (
+                                        {user.id === parseInt(session.user.id) && (
                                         <span className="text-gray-400 text-sm">(You)</span>
                                     )}
 
