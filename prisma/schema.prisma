@@ -19,5 +19,7 @@ model User {
   status    String   @default("active")
   createdAt DateTime @default(now())
   lastLogin DateTime @default(now())
+  resetToken          String?   
+  resetTokenExpiry    DateTime?
 }
 

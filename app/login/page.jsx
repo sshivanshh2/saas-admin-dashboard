@@ -2,6 +2,7 @@
 import {useState, useEffect} from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const LoginPage = () => {
     const router = useRouter()
@@ -122,7 +123,9 @@ const LoginPage = () => {
                                 className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                             <span className="text-sm text-gray-700">Remember me</span>
                         </label>
-                        <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700">Forgot password?</a>
+                        <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700">
+                                Forgot password?
+                        </Link>
                     </div>
 
                     {/* Submit button*/ }
