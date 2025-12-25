@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 export default function DashboardPage(){
     const [userCount, setUserCount] = useState(0)
+    const [loading, setLoading] = useState(true)
 
     useEffect(()=>{
         async function fetchUserCount(){
@@ -17,6 +18,9 @@ export default function DashboardPage(){
             catch(error){
                 console.error('Failed to fetch user count: ', error)
             }
+            finally{
+                setLoading(false)
+            }
         }
         fetchUserCount()
     },[])
@@ -25,7 +29,6 @@ export default function DashboardPage(){
         // KPI Content 
         <main className="p-8">
             <div>
-                <SearchInput/>
             <h1 className="text-3xl font-bold text-gray-900 mb-6">
                 Dashboard Overview
             </h1>
@@ -38,8 +41,12 @@ export default function DashboardPage(){
                         <h3 className="text-sm font-medium text-gray-600">Total Users</h3>
                         <span className="text-2xl">👥</span>
                     </div>
-                    <p className="text-3xl font-bold text-gray-900">{userCount}</p>
-                    <p className="text-sm text-green-600 mt-2">↑ 12% from last month</p>
+                   
+
+                    <p className="text-3xl font-bold text-gray-900">{loading ? "Loading...":userCount}</p>
+                    {!loading && (
+                        <p className="text-sm text-green-600 mt-2">↑ 12% from last month</p>
+                    )}
                 </div>
 
                 {/* Revenue Card */}
