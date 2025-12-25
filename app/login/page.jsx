@@ -10,6 +10,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
+    const [rememberMe, setRememberMe] = useState(false)
 
     // Redirect if already logged in
     useEffect(() => {
@@ -28,6 +29,7 @@ const LoginPage = () => {
             const result = await signIn('credentials', {
                 email: email,
                 password: password,
+                rememberMe: rememberMe.toString(),
                 redirect: false // makes sure that it doesn't redirect automatically
             })
 
@@ -35,6 +37,15 @@ const LoginPage = () => {
                 setError(result.error)
                 setIsLoading(false)
             }else{
+                 // Set cookie based on "Remember Me"
+                if(rememberMe){
+                    // Set a long-lived cookie (30 days)
+                    document.cookie = `remember-me=true; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`
+                } else {
+                    // Session cookie (deleted when browser closes)
+                    document.cookie = `remember-me=false; path=/; SameSite=Lax`
+                }
+
                 // Success! Check if there's a redirect URL
                 const params = new URLSearchParams(window.location.search)
                 const callbackUrl = params.get('callbackUrl') || '/dashboard'
@@ -104,7 +115,11 @@ const LoginPage = () => {
                     {/* Remember me and forgot password field */}
                     <div className="flex items-center justify-between">
                         <label className="flex items-center">
-                            <input type="checkbox" className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                            <input 
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e)=>setRememberMe(e.target.checked)}
+                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                             <span className="text-sm text-gray-700">Remember me</span>
                         </label>
                         <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700">Forgot password?</a>

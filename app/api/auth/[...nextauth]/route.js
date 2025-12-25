@@ -9,7 +9,8 @@ export const authOptions = {
       name: 'Credentials',
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        rememberMe: {label: "Remember Me", type: "checkbox"}
       },
       async authorize(credentials) {
         console.log('🔍 Authorize called with:', credentials?.email)
@@ -63,22 +64,31 @@ export const authOptions = {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role
+          role: user.role,
+          rememberMe: credentials.rememberMe === 'true'
         }
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // Add user info to token on login
       if (user) {
         token.id = user.id
         token.role = user.role
+
+         // Set token expiration based on rememberMe
+        if (user.rememberMe) {
+          // 30 days
+          token.exp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60)
+        } else {
+          // 2 hours
+          token.exp = Math.floor(Date.now() / 1000) + (2 * 60 * 60)
+        }
       }
       return token
     },
     // It runs every time I ask for the session
-
 
     async session({ session, token }) {
       // Add user info to session
@@ -95,7 +105,18 @@ export const authOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60 // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+   cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
   },
   secret: process.env.NEXTAUTH_SECRET
 }
