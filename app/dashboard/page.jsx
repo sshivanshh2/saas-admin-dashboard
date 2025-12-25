@@ -1,6 +1,7 @@
 'use client'
 import {useState, useEffect} from 'react'
 import SearchInput from '../components/SearchInput'
+import Link from 'next/link'
 
 export default function DashboardPage(){
     const [userCount, setUserCount] = useState(0)
@@ -75,21 +76,21 @@ export default function DashboardPage(){
          <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
+                <Link href="/dashboard/users" className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
                     <span className="text-2xl mb-2 block">➕</span>
                     <h3 className="font-semibold text-gray-900">Add New User</h3>
                     <p className="text-sm text-gray-600 mt-1">Create a new user account</p>
-                </button>
-                <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
+                </Link>
+                <Link href="/dashboard/analytics" className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
                     <span className="text-2xl mb-2 block">📊</span>
                     <h3 className="font-semibold text-gray-900">View Reports</h3>
                     <p className="text-sm text-gray-600 mt-1">Generate analytics reports</p>
-                </button>
-                 <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
+                </Link>
+                <Link href="/dashboard/settings" className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 hover:cursor-pointer transition-all text-left">
                     <span className="text-2xl mb-2 block">⚙️</span>
                     <h3 className="font-semibold text-gray-900">Settings</h3>
                     <p className="text-sm text-gray-600 mt-1">Configure your dashboard</p>
-                </button>
+                </Link>
             </div>
         </div>                        
             
